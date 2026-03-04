@@ -34,7 +34,7 @@ import Loader from '../Loader/Loader';
 // import Modal from '../Modal/Modal';
 
 // Імпорт інтерфейса для однієї нотатки
-import { type Note } from '../../types/note';
+// import { type Note } from '../../types/note';
 
 // Iмпорт функції для HTTP-запроса
 import { fetchNotes } from '../../services/noteService';
@@ -114,15 +114,15 @@ export default function App() {
   // ---------------------------------------------------------------------------------------------
 
   // Функції зміни стану модального вікна (відкриття/закриття)
-  const openModal = (note: Note) => {
-    // Стан - обраний фільм
-    setNoteSelect(note);
-  };
+  // const openModal = (note: Note) => {
+  //   // Стан - обраний фільм
+  //   setNoteSelect(note);
+  // };
 
-  const closeModal = () => {
-    // Стан - обраний фільм - скинути на null
-    setNoteSelect(null);
-  };
+  // const closeModal = () => {
+  //   // Стан - обраний фільм - скинути на null
+  //   setNoteSelect(null);
+  // };
 
   // Функція зміни стану рядка запиту - отримує значення строки запиту і записує його в стан :
   // Виконана з затримкою (1000 мс) за допомогою useDebouncedCallback
