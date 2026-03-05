@@ -31,7 +31,7 @@ import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loader from '../Loader/Loader';
 
 // Імпорт компонента Modal
-// import Modal from '../Modal/Modal';
+import Modal from '../Modal/Modal';
 
 // Імпорт інтерфейса для однієї нотатки
 // import { type Note } from '../../types/note';
@@ -54,11 +54,13 @@ import { useDebouncedCallback } from 'use-debounce';
 export default function App() {
   // Оголошуємо і типизуємо стан - рядок з пошуком
   const [query, setQuery] = useState<string>('');
-  // const [searchText, setSearchText] = useState('');
   // Оголошуємо і типизуємо стан - загальна кількість сторінок
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   // Оголошуємо і типизуємо стан - номер поточної сторінки
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
+  // Оголошуємо і типизуємо стан - чи відкрите модальне вікно
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   // Оголошуємо і типизуємо стан - масив фільмів -
   // const [movies, setMovies] = useState<Movie[]>([]);
   // Оголошуємо і типизуємо стан - один обраний фільм
@@ -114,15 +116,15 @@ export default function App() {
   // ---------------------------------------------------------------------------------------------
 
   // Функції зміни стану модального вікна (відкриття/закриття)
-  // const openModal = (note: Note) => {
-  //   // Стан - обраний фільм
-  //   setNoteSelect(note);
-  // };
+  const openModal = () => {
+    // Стан - модальне вікно
+    setIsModalOpen(true);
+  };
 
-  // const closeModal = () => {
-  //   // Стан - обраний фільм - скинути на null
-  //   setNoteSelect(null);
-  // };
+  const closeModal = () => {
+    // Стан - модальне вікно
+    setIsModalOpen(false);
+  };
 
   // Функція зміни стану рядка запиту - отримує значення строки запиту і записує його в стан :
   // Виконана з затримкою (1000 мс) за допомогою useDebouncedCallback
@@ -144,6 +146,9 @@ export default function App() {
           <Pagination totalPages={totalPages} setPage={setPage} page={page} />
         )}
         {/* Кнопка створення нотатки */}
+        <button className={css.button} onClick={openModal}>
+          Create note +
+        </button>
       </header>
       {/* Умовний рендеринг компонента NoteList в залежності від кількості нотаток */}
       {dataNotes && dataNotes.length > 0 && <NoteList notes={dataNotes} />}
@@ -152,36 +157,7 @@ export default function App() {
       {isError && <ErrorMessage />}
       {/* Умовний рендеринг компонента Loader в залежності від стану */}
       {isLoading && <Loader />}
+      {isModalOpen && <Modal onClose={closeModal} />}
     </div>
   );
 }
-
-// Старая разметка
-//  <div className={css.app}>
-//    <Toaster />
-//    <SearchBar onSubmit={handleSearch} />
-//    {/* Умовний рендеринг компонента ErrorMessage в залежності від стану */}
-//    {isError && <ErrorMessage />}
-//    {/* Умовний рендеринг компонента Loader в залежності від стану */}
-//    {isLoading && <Loader />}
-//    {/* Умовний рендеринг компонента ReactPaginate, якщо сторінок більше 1 */}
-//    {totalPages > 1 && (
-//      <ReactPaginate
-//        pageCount={totalPages}
-//        pageRangeDisplayed={5}
-//        marginPagesDisplayed={1}
-//        onPageChange={({ selected }) => setPage(selected + 1)}
-//        forcePage={page - 1}
-//        containerClassName={css.pagination}
-//        activeClassName={css.active}
-//        nextLabel="→"
-//        previousLabel="←"
-//      />
-//    )}
-//    {/* Умовний рендеринг компонента MovieGrid в залежності від кількості фільмів */}
-//    {data && data.length > 0 && (
-//      <MovieGrid onSelect={openModal} movies={data} />
-//    )}
-//    {/* Умовний рендеринг компонента MovieModal в залежності від обраного фільму */}
-//    {movieSelect && <MovieModal movie={movieSelect} onClose={closeModal} />}
-//  </div>;
