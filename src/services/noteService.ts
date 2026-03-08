@@ -16,7 +16,7 @@
 import axios from 'axios';
 
 // Імпорт інтерфейсів
-import type { Note, NoteShort } from '../types/note';
+import type { Note, NoteFormValues } from '../types/note';
 
 // Отримуємо значення змінної оточення (з файлу .env)
 // Не забуваємо додати .env в файл .gitignore !!!
@@ -82,9 +82,9 @@ export async function fetchNotes(
 
   // Виконуємо HTTP-запит
   const response = await axios.get<NotesHttpResponse>(url, options);
-  console.log('Fetch - GET :');
-  console.log('response.data.notes', response.data.notes);
-  console.log('totalPages', response.data.totalPages);
+  // console.log('Fetch - GET :');
+  // console.log('response.data.notes', response.data.notes);
+  // console.log('totalPages', response.data.totalPages);
 
   // Повертаємо значення notes та totalPages відповіді
   return {
@@ -125,8 +125,8 @@ export async function deleteNote(
 
     // Виконуємо HTTP-запит на видалення запису
     const response = await axios.delete(url, options);
-    console.log('Delete :');
-    console.log('response.data.note', response.data);
+    // console.log('Delete :');
+    // console.log('response.data.note', response.data);
 
     // Повертаємо інформацію про видалену нотатку у відповіді
     return {
@@ -154,7 +154,7 @@ export async function deleteNote(
 // https://notehub-public.goit.study/api/notes
 // ------------------------------------------------------------------------------------------
 export async function createNote(
-  noteNew: NoteShort
+  noteNew: NoteFormValues
 ): Promise<{ noteNew: Note }> {
   const url = BASE_URL;
 
@@ -167,8 +167,8 @@ export async function createNote(
 
   // Виконуємо HTTP-запит на додавання нового запису
   const response = await axios.post(url, noteNew, options);
-  console.log('Add new - POST :');
-  console.log('response.data', response.data);
+  // console.log('Add new - POST :');
+  // console.log('response.data', response.data);
 
   // Повертаємо інформацію про видалену нотатку у відповіді
   return {

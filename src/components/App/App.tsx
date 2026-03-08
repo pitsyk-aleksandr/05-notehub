@@ -37,7 +37,7 @@ import Modal from '../Modal/Modal';
 import NoteForm from '../NoteForm/NoteForm';
 
 // Імпорт інтерфейсів для однієї нотатки та для створення нової нотатки
-import type { NoteShort } from '../../types/note';
+import type { NoteFormValues } from '../../types/note';
 
 // Iмпорт функції для HTTP-запроса
 import { fetchNotes, deleteNote, createNote } from '../../services/noteService';
@@ -155,22 +155,21 @@ export default function App() {
   // ---------------------------------------------------------------------------------------------
   // Mутація для додавання нової нотатки
   const mutationCreateNote = useMutation({
-    mutationFn: async (note: NoteShort) => {
+    mutationFn: async (note: NoteFormValues) => {
       // HTTP-request
       const { noteNew } = await createNote(note);
-      console.log('noteNew', noteNew);
+      toast.success(`Created note: ${noteNew.title}`);
     },
     onSuccess: () => {
       // Mutation success!
-      console.log('Create success !');
-      console.log('query', query);
+      toast.success(`Create success !`);
       // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
       // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
       queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
     },
     onError: error => {
-      // An error happened!
-      console.error('Create ERROR !', error);
+      // An error
+      toast.error(`Created ERROR ${error.message}`);
     },
   });
   // ---------------------------------------------------------------------------------------------
@@ -181,19 +180,18 @@ export default function App() {
     mutationFn: async (noteId: string) => {
       // HTTP-request
       const noteDelete = await deleteNote(noteId);
-      console.log('noteDelete', noteDelete);
+      toast.success(`Deleted note: ${noteDelete?.noteDelete.title}`);
     },
     onSuccess: () => {
       // Mutation success!
-      console.log('Delete success !');
-      console.log('query', query);
+      toast.success(`Delete success !`);
       // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
       // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
       queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
     },
     onError: error => {
-      // An error happened!
-      console.error('Delete ERROR !', error);
+      // An error
+      toast.error(`Deleted ERROR ${error.message}`);
     },
   });
   // ---------------------------------------------------------------------------------------------
@@ -208,10 +206,10 @@ export default function App() {
 
   // ---------------------------------------------------------------------------------------------
   // Функції зміни стану модального вікна (відкриття/закриття)
-  // const openModal = () => {
-  //   // Стан - модальне вікно
-  //   setIsModalOpen(true);
-  // };
+  const openModal = () => {
+    // Стан - модальне вікно
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
     // Стан - модальне вікно
@@ -232,15 +230,7 @@ export default function App() {
 
   // ---------------------------------------------------------------------------------------------
   // Функція додавання нотатки
-  // const taskCreate = (note: Note) => {
-  const taskCreate = () => {
-    console.log('taskCreate - note');
-    const createNote: NoteShort = {
-      title: 'Sample Note',
-      content: 'This is a sample note content.',
-      tag: 'Todo',
-    };
-    console.log('createNote', createNote);
+  const taskCreate = (createNote: NoteFormValues) => {
     // Виклик мутації з додавання нотатки
     mutationCreateNote.mutate(createNote);
   };
@@ -249,7 +239,7 @@ export default function App() {
   // ---------------------------------------------------------------------------------------------
   // Функція видалення нотатки
   const taskDelete = (noteId: string) => {
-    console.log('taskDelete - noteId', noteId);
+    // console.log('taskDelete - noteId', noteId);
     // Виклик мутації з видалення вибраної нотатки
     mutationDeleteNote.mutate(noteId);
   };
@@ -266,8 +256,7 @@ export default function App() {
           <Pagination totalPages={totalPages} setPage={setPage} page={page} />
         )}
         {/* Кнопка створення нотатки */}
-        {/* <button className={css.button} onClick={openModal}> */}
-        <button className={css.button} onClick={taskCreate}>
+        <button className={css.button} onClick={openModal}>
           Create note +
         </button>
       </header>
@@ -282,7 +271,7 @@ export default function App() {
       {isLoading && <Loader />}
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <NoteForm />
+          <NoteForm onClose={closeModal} onCreate={taskCreate} />
         </Modal>
       )}
     </div>
