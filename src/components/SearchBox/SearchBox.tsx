@@ -18,9 +18,17 @@ interface SearchBoxProps {
 }
 
 export default function SearchBox({ onChangeText }: SearchBoxProps) {
-  const [searchText, setSearchText] = useState('');
+  // const [searchText, setSearchText] = useState('');
+  // Ініціалізація стану searchText з localStorage, щоб зберегти текст між сесіями
+  const [searchText, setSearchText] = useState<string>(() => {
+    const savedSearchText = localStorage.getItem('searchText');
+    return savedSearchText ? JSON.parse(savedSearchText) : '';
+  });
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Отримуємо текст з поля вводу та видаляємо зайві пробіли з початку та кінця
     const text = event.target.value.trim();
+
     // Перевірка значення поля
     // if (text === '') {
     //   // Якщо поле пусте, то виводиться повідомлення про помилку
@@ -28,7 +36,11 @@ export default function SearchBox({ onChangeText }: SearchBoxProps) {
     //   // Вихід з функції
     //   return;
     // }
+
+    // Оновлення стану та збереження в localStorage
     setSearchText(text);
+    localStorage.setItem('searchText', JSON.stringify(text));
+    // Виклик функції onChangeText з поточним текстом пошуку
     onChangeText(text);
   };
 

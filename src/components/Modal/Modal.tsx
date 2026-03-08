@@ -3,14 +3,14 @@
 //                   який може відображати будь-який вміст, переданий через children
 // ==========================================================================================
 
-// Компонент MovieModal використовується в компоненті App
-// MovieModal отримує два пропси:
-//      - movie - посилання на об’єкт обраного фільма;
+// Компонент Modal використовується в компоненті App
+// Modal отримує два пропси:
+//      - incluse - назва компонента, який буде в модальному вікні
 //      - onClose - функцію закриття модального вікна.
 // ------------------------------------------------------------------------------------------
 
 // Функція createPortal дозволяє рендерити компонент в інше місце DOM-дерева,
-// зазвичай безпосередньо в <body>.
+// зазвичай безпосередньо в <body>, іноді в інший блок в корні за id
 import { createPortal } from 'react-dom';
 
 import { useEffect } from 'react';
@@ -21,17 +21,22 @@ import { useEffect } from 'react';
 // Імпорт модуля зі стилями компонента
 import css from './Modal.module.css';
 
-// Оголошення інтерфейса MovieModalProps, який описує типи для пропсів компонента.
+// Оголошення інтерфейса ModalProps, який описує типи для пропсів компонента.
 interface ModalProps {
-  // note - посилання на об’єкт обраного фільма (null - якщо не вибраний спочатку)
-  //   note: Note | null;
+  // Будь який контент між відкриваючим та закриваючим тегом компонента буде передано як children -
+  // спеціальний службовий пропс, що дозволяє передавати дочірні елементи
+  // (компоненти або JSX) в компонент.
+  // Для типізації пропса children використовуємо стандартний тип React.ReactNode,
+  // який описує будь-який вміст, що може бути переданий в компонент:
+  // елементи, рядки, числа, масиви елементів або навіть інші компоненти.
+  children: React.ReactNode;
   // onClose - функція закриття модального вікна
   // Типізація функцій - стандартна (через стрілочну функцію)
   onClose: () => void;
 }
 
 // Компонент Modal
-export default function Modal({ onClose }: ModalProps) {
+export default function Modal({ children, onClose }: ModalProps) {
   // Функція закриття модального вікна по кліку на Backdrop
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
@@ -62,7 +67,6 @@ export default function Modal({ onClose }: ModalProps) {
   }, [onClose]);
 
   // Створення розмітки компонента в кінці елемента document.body
-  // Умовний рендеринг (note &&), якщо note - НЕ null
   return createPortal(
     <div
       className={css.backdrop}
@@ -70,7 +74,12 @@ export default function Modal({ onClose }: ModalProps) {
       role="dialog"
       aria-modal="true"
     >
-      <div className={css.modal}>{/* */}</div>
+      <div className={css.modal}>
+        {/* Вміст модального вікна*/}
+        {/* Тут рендериться переданий вміст із пропса children */}
+        {children}
+        {/* ================================================== */}
+      </div>
     </div>,
     document.body
   );

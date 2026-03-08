@@ -15,8 +15,8 @@
 // Імпорт бібліотеки axios
 import axios from 'axios';
 
-// Імпорт інтерфейса для одного фільму
-import { type Note } from '../types/note';
+// Імпорт інтерфейсів
+import type { Note, NoteShort } from '../types/note';
 
 // Отримуємо значення змінної оточення (з файлу .env)
 // Не забуваємо додати .env в файл .gitignore !!!
@@ -79,9 +79,11 @@ export async function fetchNotes(
       Authorization: myAuthorization,
     },
   };
+
   // Виконуємо HTTP-запит
   const response = await axios.get<NotesHttpResponse>(url, options);
-
+  console.log('Fetch - GET :');
+  console.log('response.data.notes', response.data.notes);
   console.log('totalPages', response.data.totalPages);
 
   // Повертаємо значення notes та totalPages відповіді
@@ -90,3 +92,87 @@ export async function fetchNotes(
     totalPages: response.data.totalPages,
   };
 }
+// ==========================================================================================
+
+// ==========================================================================================
+// deleteNote: має виконувати запит для видалення нотатки за заданим ідентифікатором.
+// Приймає ID нотатки та повертає інформацію про видалену нотатку у відповіді.
+// ==========================================================================================
+// Структура запиту :
+// ------------------------------------------------------------------------------------------
+// https://notehub-public.goit.study/api/notes/65ca67e7ae7f10c88b598384
+// ------------------------------------------------------------------------------------------
+// Базовий URL
+// https://notehub-public.goit.study/api/notes
+// ------------------------------------------------------------------------------------------
+// Ідентифікатор запису для видалення
+// "id": string    "65ca67e7ae7f10c88b598384"
+// ------------------------------------------------------------------------------------------
+export async function deleteNote(
+  noteId: string
+): Promise<{ noteDelete: Note } | undefined> {
+  let url = BASE_URL;
+  if (noteId !== '') {
+    url = url + `/${noteId}`;
+
+    const options = {
+      // method: 'DELETE',
+      headers: {
+        accept: 'application/json',
+        Authorization: myAuthorization,
+      },
+    };
+
+    // Виконуємо HTTP-запит на видалення запису
+    const response = await axios.delete(url, options);
+    console.log('Delete :');
+    console.log('response.data.note', response.data);
+
+    // Повертаємо інформацію про видалену нотатку у відповіді
+    return {
+      noteDelete: response.data,
+    };
+  }
+}
+// ==========================================================================================
+
+// ==========================================================================================
+// createNote: має виконувати запит для створення нової нотатки на сервері.
+// Приймає вміст нової нотатки та повертає створену нотатку у відповіді
+// ==========================================================================================
+// curl -X 'POST' \
+//   'https://notehub-public.goit.study/api/notes' \
+//   -H 'accept: application/json' \
+//   -H 'Content-Type: application/json' \
+//   -d '{
+//      "title": "Sample Note",
+//      "content": "",
+//      "tag": "Todo"
+//   }'
+// ------------------------------------------------------------------------------------------
+// Базовий URL
+// https://notehub-public.goit.study/api/notes
+// ------------------------------------------------------------------------------------------
+export async function createNote(
+  noteNew: NoteShort
+): Promise<{ noteNew: Note }> {
+  const url = BASE_URL;
+
+  const options = {
+    headers: {
+      accept: 'application/json',
+      Authorization: myAuthorization,
+    },
+  };
+
+  // Виконуємо HTTP-запит на додавання нового запису
+  const response = await axios.post(url, noteNew, options);
+  console.log('Add new - POST :');
+  console.log('response.data', response.data);
+
+  // Повертаємо інформацію про видалену нотатку у відповіді
+  return {
+    noteNew: response.data,
+  };
+}
+// ==========================================================================================
