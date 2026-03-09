@@ -36,23 +36,20 @@ import Modal from '../Modal/Modal';
 // Імпорт компонента
 import NoteForm from '../NoteForm/NoteForm';
 
-// Імпорт інтерфейсів для однієї нотатки та для створення нової нотатки
-import type { NoteFormValues } from '../../types/note';
-
 // Iмпорт функції для HTTP-запроса
-import { fetchNotes, deleteNote, createNote } from '../../services/noteService';
+import { fetchNotes } from '../../services/noteService';
 
 // Імпорт хук useQuery, який виконує асинхронні запити та автоматично керує станами завантаження,
 // помилок та збереженням даних, значно спрощуючи роботу з API.
 import { useQuery } from '@tanstack/react-query';
 
+// Імпортуємо хук useQueryClient
+// import { useQueryClient } from '@tanstack/react-query';
+
 // Імпорт хук useMutation
 // Мутації в React Query використовуються для виконання операцій, які змінюють дані на сервері,
 // таких як створення, оновлення або видалення записів.
-import { useMutation } from '@tanstack/react-query';
-
-// Імпортуємо хук useQueryClient
-import { useQueryClient } from '@tanstack/react-query';
+// import { useMutation } from '@tanstack/react-query';
 
 // Імпорт keepPreviousData - для збереження попереднього запиту, поки не прийдуть нові дані
 import { keepPreviousData } from '@tanstack/react-query';
@@ -67,7 +64,8 @@ export default function App() {
   // Потрібно інвалідувати кеш для конкретного queryKey, це змусить React Query
   // зробити повторний запит за колекцією даних, тобто виконати відповідний useQuery.
   // Отримуємо посилання на квері-клієнт що створювали у main.tsx
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
+
   // ---------------------------------------------------------------------------------------------
   // Оголошуємо і типизуємо стан - рядок з пошуком
   // Отримуємо з localStorage збережений рядок запиту,
@@ -134,66 +132,14 @@ export default function App() {
   // ---------------------------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------------------------
-  // const mutation = useMutation(options)
-  // Хук useMutation приймає об’єкт налаштувань
-  //   mutationFn – асинхронна функція, яка виконує запит для зміни даних на сервері,
-  //                тобто POST, DELETE, PUT або PATCH.
-  //   onSuccess  – викликається, коли мутація успішна. Це дозволяє вам виконати додаткові дії
-  //                після того, як сервер успішно обробить запит.
-  //   onError    – викликається, коли мутація завершується помилкою. Це дозволяє вам
-  //                обробити помилки, наприклад, відобразити повідомлення про помилку.
-  // Хук useMutation не викликає асинхронну функцію,
-  // а повертає об’єкт мутації із наступними властивостями:
-  //      mutate    – метод, який викликається для запуску асинхронної функції.
-  //      isPending – статус, який показує, що мутація зараз виконується
-  //                  (наприклад, дані відправляються на сервер).
-  //      isError   – встановлюється в true, якщо сталася помилка при виконанні мутації.
-  //      isSuccess – встановлюється в true, якщо мутація була успішною, і дані були оновлені на сервері.
-  // Ці стани допомагають вам відстежувати, на якому етапі виконання знаходиться мутація
-  // ---------------------------------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------------------------------
-  // Mутація для додавання нової нотатки
-  const mutationCreateNote = useMutation({
-    mutationFn: async (note: NoteFormValues) => {
-      // HTTP-request
-      const noteNew = await createNote(note);
-      toast.success(`Created note: ${noteNew.title}`);
-    },
-    onSuccess: () => {
-      // Mutation success!
-      toast.success(`Create success !`);
-      // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
-      // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
-      queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
-    },
-    onError: error => {
-      // An error
-      toast.error(`Created ERROR ${error.message}`);
-    },
-  });
-  // ---------------------------------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------------------------------
-  // Mутація для видалення нотатки
-  const mutationDeleteNote = useMutation({
-    mutationFn: async (noteId: string) => {
-      // HTTP-request
-      const noteDelete = await deleteNote(noteId);
-      toast.success(`Deleted note: ${noteDelete.title}`);
-    },
-    onSuccess: () => {
-      // Mutation success!
-      toast.success(`Delete success !`);
-      // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
-      // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
-      queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
-    },
-    onError: error => {
-      // An error
-      toast.error(`Deleted ERROR ${error.message}`);
-    },
-  });
+  // Функція зміни стану рядка запиту - отримує значення строки запиту і записує його в стан :
+  // Виконана з затримкою (1000 мс) за допомогою useDebouncedCallback
+  const handleSearch = useDebouncedCallback((text: string) => {
+    // Скидаємо номер сторінки на 1 при новому пошуку
+    setPage(1);
+    // Змінюємо стан - на значення строки запиту
+    setQuery(text);
+  }, 1000);
   // ---------------------------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------------------------
@@ -217,34 +163,6 @@ export default function App() {
   };
   // ---------------------------------------------------------------------------------------------
 
-  // ---------------------------------------------------------------------------------------------
-  // Функція зміни стану рядка запиту - отримує значення строки запиту і записує його в стан :
-  // Виконана з затримкою (1000 мс) за допомогою useDebouncedCallback
-  const handleSearch = useDebouncedCallback((text: string) => {
-    // Скидаємо номер сторінки на 1 при новому пошуку
-    setPage(1);
-    // Змінюємо стан - на значення строки запиту
-    setQuery(text);
-  }, 1000);
-  // ---------------------------------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------------------------------
-  // Функція додавання нотатки
-  const taskCreate = (createNote: NoteFormValues) => {
-    // Виклик мутації з додавання нотатки
-    mutationCreateNote.mutate(createNote);
-  };
-  // ---------------------------------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------------------------------
-  // Функція видалення нотатки
-  const taskDelete = (noteId: string) => {
-    // console.log('taskDelete - noteId', noteId);
-    // Виклик мутації з видалення вибраної нотатки
-    mutationDeleteNote.mutate(noteId);
-  };
-  // ---------------------------------------------------------------------------------------------
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -261,9 +179,7 @@ export default function App() {
         </button>
       </header>
       {/* Умовний рендеринг компонента NoteList в залежності від кількості нотаток */}
-      {dataNotes && dataNotes.length > 0 && (
-        <NoteList notes={dataNotes} onDelete={taskDelete} />
-      )}
+      {dataNotes && dataNotes.length > 0 && <NoteList notes={dataNotes} />}
       {/* Рендеринг компонента Toaster при наявності повідомлень */}
       <Toaster />
       {/* Умовний рендеринг компонента ErrorMessage в залежності від стану */}
@@ -272,7 +188,7 @@ export default function App() {
       {isLoading && <Loader />}
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <NoteForm onClose={closeModal} onCreate={taskCreate} />
+          <NoteForm onClose={closeModal} />
         </Modal>
       )}
     </div>

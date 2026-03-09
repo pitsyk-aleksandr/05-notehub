@@ -17,12 +17,25 @@ import * as Yup from 'yup';
 // Імпорт інтерфейса для однієї нотатки
 import type { NoteFormValues } from '../../types/note';
 
+// Імпорт хук useMutation
+// Мутації в React Query використовуються для виконання операцій, які змінюють дані на сервері,
+// таких як створення, оновлення або видалення записів.
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Імпорт бібліотеки react-hot-toast (Додатково - npm install react-hot-toast)
+// toast - функція виклика повідомлення
+// Toaster - компонент для відображення повідомлень
+import toast from 'react-hot-toast';
+
+// Iмпорт функції для HTTP-запроса - створення нотатки
+import { createNote } from '../../services/noteService';
+
 // Оголошення інтерфейса NoteFormProps, який описує типи для пропсів компонента.
 interface NoteFormProps {
   // onClose - функція закриття модального вікна
   onClose: () => void;
   // onCreate - функція створення нотатки, яка приймає об'єкт з даними нової нотатки
-  onCreate: (createNote: NoteFormValues) => void;
+  //   onCreate: (createNote: NoteFormValues) => void;
 }
 
 // Створюємо змінну для початкових значень форми та заповнюємо її відповідно до інтерфейса NoteFormValues
@@ -33,7 +46,14 @@ const initialValuesForm: NoteFormValues = {
 };
 
 // Компонент NoteForm
-export default function NoteForm({ onClose, onCreate }: NoteFormProps) {
+export default function NoteForm({ onClose }: NoteFormProps) {
+  // Ініціалізація змінної queryClient для роботи з кешем React Query
+  const queryClient = useQueryClient();
+  // Ініціалізація змінної query з localStorage
+  const savedQuery = localStorage.getItem('query');
+    const query = savedQuery ? JSON.parse(savedQuery) : '';
+    
+  // ---------------------------------------------------------------------------------------------
   // Створюємо схему валідації для форми за допомогою Yup :
   // Валідація поля title: рядок, мінімум 3 символи, максимум 50 символів, обов'язкове поле
   // Валідація поля content: рядок, максимум 500 символів
@@ -48,19 +68,52 @@ export default function NoteForm({ onClose, onCreate }: NoteFormProps) {
       .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'])
       .required('Tag is required'),
   });
+  // ---------------------------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------------------------
   // Функція обробки відправки форми, яка приймає значення форми та допоміжні функції Formik
   const handleSubmit = (
     values: NoteFormValues,
     actions: FormikHelpers<NoteFormValues>
   ) => {
-    // Виклик функції onCreate з поточними значеннями форми - створення нотатки
-    onCreate(values);
+    // Виклик функції taskCreate з поточними значеннями форми - створення нотатки
+    taskCreate(values);
     // Скидаємо форму до початкових значень
     actions.resetForm();
     // Закриваємо модальне вікно після створення нотатки
     onClose();
   };
+  // ---------------------------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------------------------
+  // Mутація для додавання нової нотатки
+  const mutationCreateNote = useMutation({
+    mutationFn: async (note: NoteFormValues) => {
+      // HTTP-request
+      const noteNew = await createNote(note);
+      toast.success(`Created note: ${noteNew.title}`);
+    },
+    onSuccess: () => {
+      // Mutation success!
+      toast.success(`Create success !`);
+      // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
+      // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
+      queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
+    },
+    onError: error => {
+      // An error
+      toast.error(`Created ERROR ${error.message}`);
+    },
+  });
+  // ---------------------------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------------------------
+  // Функція додавання нотатки
+  const taskCreate = (createNote: NoteFormValues) => {
+    // Виклик мутації з додавання нотатки
+    mutationCreateNote.mutate(createNote);
+  };
+  // ---------------------------------------------------------------------------------------------
 
   return (
     <Formik

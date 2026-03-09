@@ -34,16 +34,10 @@ interface GetNotesHttpResponse {
 }
 
 // Типізація відповіді Delete-запиту від Axios :
-// interface DeleteNotesHttpResponse {
-//   noteDelete: Note; // Відповідь містить нотатку у властивості results
-// }
-type DeleteNotesHttpResponse = Note; // Відповідь містить нотатку у властивості results
+type DeleteNotesHttpResponse = Note; // Відповідь містить нотатку
 
 // Типізація відповіді Post-запиту від Axios :
-// interface PostNotesHttpResponse {
-//   noteNew: Note; // Відповідь містить нотатку у властивості results
-// }
-type PostNotesHttpResponse = Note; // Відповідь містить нотатку у властивості results
+type PostNotesHttpResponse = Note; // Відповідь містить нотатку
 
 // ==========================================================================================
 // fetchNotes : має виконувати запит для отримання колекції нотаток із сервера.
@@ -94,9 +88,9 @@ export async function fetchNotes(
 
   // Виконуємо HTTP-запит
   const response = await axios.get<GetNotesHttpResponse>(url, options);
-  console.log('Fetch - GET :');
-  console.log('response.data.notes', response.data.notes);
-  console.log('totalPages', response.data.totalPages);
+  // console.log('Fetch - GET :');
+  // console.log('response.data.notes', response.data.notes);
+  // console.log('totalPages', response.data.totalPages);
 
   // Повертаємо значення notes та totalPages відповіді
   return {
@@ -137,8 +131,8 @@ export async function deleteNote(
 
     // Виконуємо HTTP-запит на видалення запису
     const response = await axios.delete<DeleteNotesHttpResponse>(url, options);
-    console.log('Delete :');
-    console.log('response.data.note', response.data);
+    // console.log('Delete :');
+    // console.log('response.data.note', response.data);
 
     // Повертаємо інформацію про видалену нотатку у відповіді
     return response.data;
@@ -183,8 +177,8 @@ export async function createNote(
     noteCreate,
     options
   );
-  console.log('Add new - POST :');
-  console.log('response.data', response.data);
+  // console.log('Add new - POST :');
+  // console.log('response.data', response.data);
 
   // Повертаємо інформацію про видалену нотатку у відповіді
   return response.data;
