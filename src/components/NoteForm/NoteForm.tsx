@@ -34,11 +34,19 @@ const initialValuesForm: NoteFormValues = {
 
 // Компонент NoteForm
 export default function NoteForm({ onClose, onCreate }: NoteFormProps) {
-  // Створюємо схему валідації для форми за допомогою Yup
+  // Створюємо схему валідації для форми за допомогою Yup :
+  // Валідація поля title: рядок, мінімум 3 символи, максимум 50 символів, обов'язкове поле
+  // Валідація поля content: рядок, максимум 500 символів
+  // Валідація поля tag: рядок, має бути одним з перерахованих значень, обов'язкове поле
   const validationSchemaNoteForm = Yup.object({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
-    tag: Yup.string().required('Tag is required'),
+    title: Yup.string()
+      .min(3, 'Title must be at least 3 characters')
+      .max(50, 'Title must be at most 50 characters')
+      .required('Title is required'),
+    content: Yup.string().max(500, 'Content must be at most 500 characters'),
+    tag: Yup.string()
+      .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'])
+      .required('Tag is required'),
   });
 
   // Функція обробки відправки форми, яка приймає значення форми та допоміжні функції Formik

@@ -26,12 +26,24 @@ const myAuthorization = 'Bearer ' + myKey;
 
 const BASE_URL = 'https://notehub-public.goit.study/api/notes';
 
-// Типізація відповіді від Axios - згідно структури бекенда :
+// Типізація відповіді Get-запиту від Axios - згідно структури бекенда :
 // https://notehub-public.goit.study/api/docs/#/Notes/getNote
-interface NotesHttpResponse {
+interface GetNotesHttpResponse {
   notes: Note[]; // Відповідь містить масив нотаток у властивості results
   totalPages: number; // Загальна кількість сторінок результатів
 }
+
+// Типізація відповіді Delete-запиту від Axios :
+// interface DeleteNotesHttpResponse {
+//   noteDelete: Note; // Відповідь містить нотатку у властивості results
+// }
+type DeleteNotesHttpResponse = Note; // Відповідь містить нотатку у властивості results
+
+// Типізація відповіді Post-запиту від Axios :
+// interface PostNotesHttpResponse {
+//   noteNew: Note; // Відповідь містить нотатку у властивості results
+// }
+type PostNotesHttpResponse = Note; // Відповідь містить нотатку у властивості results
 
 // ==========================================================================================
 // fetchNotes : має виконувати запит для отримання колекції нотаток із сервера.
@@ -64,7 +76,7 @@ interface NotesHttpResponse {
 export async function fetchNotes(
   nameSearch: string,
   pageCurrent: number = 1
-): Promise<{ notes: Note[]; totalPages: number }> {
+): Promise<GetNotesHttpResponse> {
   let url = BASE_URL;
   if (nameSearch !== '') {
     url = url + `?search=${nameSearch}&page=${pageCurrent}&perPage=12`;
@@ -81,10 +93,10 @@ export async function fetchNotes(
   };
 
   // Виконуємо HTTP-запит
-  const response = await axios.get<NotesHttpResponse>(url, options);
-  // console.log('Fetch - GET :');
-  // console.log('response.data.notes', response.data.notes);
-  // console.log('totalPages', response.data.totalPages);
+  const response = await axios.get<GetNotesHttpResponse>(url, options);
+  console.log('Fetch - GET :');
+  console.log('response.data.notes', response.data.notes);
+  console.log('totalPages', response.data.totalPages);
 
   // Повертаємо значення notes та totalPages відповіді
   return {
@@ -110,7 +122,7 @@ export async function fetchNotes(
 // ------------------------------------------------------------------------------------------
 export async function deleteNote(
   noteId: string
-): Promise<{ noteDelete: Note } | undefined> {
+): Promise<DeleteNotesHttpResponse> {
   let url = BASE_URL;
   if (noteId !== '') {
     url = url + `/${noteId}`;
@@ -124,14 +136,14 @@ export async function deleteNote(
     };
 
     // Виконуємо HTTP-запит на видалення запису
-    const response = await axios.delete(url, options);
-    // console.log('Delete :');
-    // console.log('response.data.note', response.data);
+    const response = await axios.delete<DeleteNotesHttpResponse>(url, options);
+    console.log('Delete :');
+    console.log('response.data.note', response.data);
 
     // Повертаємо інформацію про видалену нотатку у відповіді
-    return {
-      noteDelete: response.data,
-    };
+    return response.data;
+  } else {
+    throw new Error('Note ID is required for deletion');
   }
 }
 // ==========================================================================================
@@ -154,8 +166,8 @@ export async function deleteNote(
 // https://notehub-public.goit.study/api/notes
 // ------------------------------------------------------------------------------------------
 export async function createNote(
-  noteNew: NoteFormValues
-): Promise<{ noteNew: Note }> {
+  noteCreate: NoteFormValues
+): Promise<PostNotesHttpResponse> {
   const url = BASE_URL;
 
   const options = {
@@ -166,13 +178,15 @@ export async function createNote(
   };
 
   // Виконуємо HTTP-запит на додавання нового запису
-  const response = await axios.post(url, noteNew, options);
-  // console.log('Add new - POST :');
-  // console.log('response.data', response.data);
+  const response = await axios.post<PostNotesHttpResponse>(
+    url,
+    noteCreate,
+    options
+  );
+  console.log('Add new - POST :');
+  console.log('response.data', response.data);
 
   // Повертаємо інформацію про видалену нотатку у відповіді
-  return {
-    noteNew: response.data,
-  };
+  return response.data;
 }
 // ==========================================================================================

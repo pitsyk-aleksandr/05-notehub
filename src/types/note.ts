@@ -20,9 +20,7 @@ export interface Note {
 // ==========================================================================================
 // Інтерфейс для тегів нотаток
 // ==========================================================================================
-export interface NoteTag {
-  tag: string;
-}
+export type NoteTag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
 
 // ==========================================================================================
 // Інтерфейс  для створення нової нотатки у формі
@@ -30,5 +28,5 @@ export interface NoteTag {
 export interface NoteFormValues {
   title: string;
   content: string;
-  tag: string;
+  tag: NoteTag;
 }

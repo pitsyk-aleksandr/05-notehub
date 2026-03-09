@@ -157,7 +157,7 @@ export default function App() {
   const mutationCreateNote = useMutation({
     mutationFn: async (note: NoteFormValues) => {
       // HTTP-request
-      const { noteNew } = await createNote(note);
+      const noteNew = await createNote(note);
       toast.success(`Created note: ${noteNew.title}`);
     },
     onSuccess: () => {
@@ -180,7 +180,7 @@ export default function App() {
     mutationFn: async (noteId: string) => {
       // HTTP-request
       const noteDelete = await deleteNote(noteId);
-      toast.success(`Deleted note: ${noteDelete?.noteDelete.title}`);
+      toast.success(`Deleted note: ${noteDelete.title}`);
     },
     onSuccess: () => {
       // Mutation success!
@@ -250,7 +250,7 @@ export default function App() {
       <header className={css.toolbar}>
         {/* Компонент SearchBox */}
         <SearchBox onChangeText={handleSearch} />
-        {/* Пагінація */}
+        {/* Пагінація : */}
         {/* Умовний рендеринг компонента Pagination в залежності від кількості сторінок */}
         {totalPages > 1 && (
           <Pagination totalPages={totalPages} setPage={setPage} page={page} />
@@ -264,6 +264,7 @@ export default function App() {
       {dataNotes && dataNotes.length > 0 && (
         <NoteList notes={dataNotes} onDelete={taskDelete} />
       )}
+      {/* Рендеринг компонента Toaster при наявності повідомлень */}
       <Toaster />
       {/* Умовний рендеринг компонента ErrorMessage в залежності від стану */}
       {isError && <ErrorMessage />}
