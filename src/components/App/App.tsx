@@ -179,7 +179,9 @@ export default function App() {
         </button>
       </header>
       {/* Умовний рендеринг компонента NoteList в залежності від кількості нотаток */}
-      {dataNotes && dataNotes.length > 0 && <NoteList notes={dataNotes} />}
+      {dataNotes && dataNotes.length > 0 && (
+        <NoteList notes={dataNotes} currentQuery={query} />
+      )}
       {/* Рендеринг компонента Toaster при наявності повідомлень */}
       <Toaster />
       {/* Умовний рендеринг компонента ErrorMessage в залежності від стану */}
@@ -188,7 +190,7 @@ export default function App() {
       {isLoading && <Loader />}
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <NoteForm onClose={closeModal} />
+          <NoteForm onClose={closeModal} currentQuery={query} />
         </Modal>
       )}
     </div>

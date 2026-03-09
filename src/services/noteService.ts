@@ -71,18 +71,26 @@ export async function fetchNotes(
   nameSearch: string,
   pageCurrent: number = 1
 ): Promise<GetNotesHttpResponse> {
-  let url = BASE_URL;
-  if (nameSearch !== '') {
-    url = url + `?search=${nameSearch}&page=${pageCurrent}&perPage=12`;
-  } else {
-    url = url + `?&page=${pageCurrent}&perPage=12`;
-  }
+  const url = BASE_URL;
+  // if (nameSearch !== '') {
+  //   url = url + `?search=${nameSearch}&page=${pageCurrent}&perPage=12`;
+  // } else {
+  //   url = url + `?&page=${pageCurrent}&perPage=12`;
+  // }
 
   const options = {
-    method: 'GET',
+    // method: 'GET',
     headers: {
-      accept: 'application/json',
+      // axios автоматично встановлює заголовок Accept: application/json для запитів,
+      // які очікують JSON-відповідь, тому його можна не вказувати явно.
+      // accept: 'application/json',
       Authorization: myAuthorization,
+    },
+    // Додаткові параметри запиту Get
+    params: {
+      search: nameSearch,
+      page: pageCurrent,
+      perPage: 12,
     },
   };
 
@@ -124,7 +132,9 @@ export async function deleteNote(
     const options = {
       // method: 'DELETE',
       headers: {
-        accept: 'application/json',
+        // axios автоматично встановлює заголовок Content-Type: application/json для запитів,
+        // які містять тіло (наприклад, POST або PUT), тому його можна не вказувати явно.
+        // accept: 'application/json',
         Authorization: myAuthorization,
       },
     };
@@ -166,7 +176,7 @@ export async function createNote(
 
   const options = {
     headers: {
-      accept: 'application/json',
+      // accept: 'application/json',
       Authorization: myAuthorization,
     },
   };

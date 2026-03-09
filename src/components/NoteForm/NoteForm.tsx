@@ -34,8 +34,8 @@ import { createNote } from '../../services/noteService';
 interface NoteFormProps {
   // onClose - функція закриття модального вікна
   onClose: () => void;
-  // onCreate - функція створення нотатки, яка приймає об'єкт з даними нової нотатки
-  //   onCreate: (createNote: NoteFormValues) => void;
+  // currentQuery - поточний текст пошуку, який використовується для отримання нотаток з сервера.
+  currentQuery: string;
 }
 
 // Створюємо змінну для початкових значень форми та заповнюємо її відповідно до інтерфейса NoteFormValues
@@ -46,13 +46,10 @@ const initialValuesForm: NoteFormValues = {
 };
 
 // Компонент NoteForm
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function NoteForm({ onClose, currentQuery }: NoteFormProps) {
   // Ініціалізація змінної queryClient для роботи з кешем React Query
   const queryClient = useQueryClient();
-  // Ініціалізація змінної query з localStorage
-  const savedQuery = localStorage.getItem('query');
-    const query = savedQuery ? JSON.parse(savedQuery) : '';
-    
+
   // ---------------------------------------------------------------------------------------------
   // Створюємо схему валідації для форми за допомогою Yup :
   // Валідація поля title: рядок, мінімум 3 символи, максимум 50 символів, обов'язкове поле
@@ -81,7 +78,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     // Скидаємо форму до початкових значень
     actions.resetForm();
     // Закриваємо модальне вікно після створення нотатки
-    onClose();
+    // onClose();
   };
   // ---------------------------------------------------------------------------------------------
 
@@ -96,9 +93,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     onSuccess: () => {
       // Mutation success!
       toast.success(`Create success !`);
+      // Закриваємо модальне вікно після УСПІШНОГО створення нотатки
+      onClose();
       // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
       // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
-      queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
+      queryClient.invalidateQueries({ queryKey: ['notes', currentQuery, 1] });
     },
     onError: error => {
       // An error

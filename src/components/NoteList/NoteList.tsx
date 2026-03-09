@@ -21,15 +21,16 @@ import { deleteNote } from '../../services/noteService';
 
 // Оголошення інтерфейса NoteListProps, який описує типи для пропсів компонента.
 interface NoteListProps {
+  // notes - масив нотаток, який буде відображатися в компоненті NoteList.
+  // Кожна нотатка має тип Note, який описує структуру даних для однієї нотатки.
   notes: Note[];
+  // currentQuery - поточний текст пошуку, який використовується для отримання нотаток з сервера.
+  currentQuery: string;
 }
 
-export default function NoteList({ notes }: NoteListProps) {
+export default function NoteList({ notes, currentQuery }: NoteListProps) {
   // Ініціалізація змінної queryClient для роботи з кешем React Query
   const queryClient = useQueryClient();
-  // Ініціалізація змінної query з localStorage
-  const savedQuery = localStorage.getItem('query');
-  const query = savedQuery ? JSON.parse(savedQuery) : '';
 
   // ---------------------------------------------------------------------------------------------
   // const mutation = useMutation(options)
@@ -62,7 +63,7 @@ export default function NoteList({ notes }: NoteListProps) {
       toast.success(`Delete success !`);
       // Коли мутація успішно виконується, інвалідовуємо всі запити з ключем "notes",
       // що змусить React Query повторно виконати ці запити і отримати оновлені дані з сервера.
-      queryClient.invalidateQueries({ queryKey: ['notes', query, 1] });
+      queryClient.invalidateQueries({ queryKey: ['notes', currentQuery, 1] });
     },
     onError: error => {
       // An error
